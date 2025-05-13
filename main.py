@@ -18,7 +18,7 @@ transform = transforms.Compose([
 train_dataset = datasets.MNIST(root='./data', train=True, download=True, transform=transform)
 test_dataset = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
 
-train_loader = DataLoader(train_dataset, batch_size=5000, shuffle=True, pin_memory=True, num_workers=2)
+train_loader = DataLoader(train_dataset, batch_size=5000, shuffle=True, pin_memory=True, num_workers=2)    #батчи меньше сделать,это для теста, 64-256 достаточно
 test_loader = DataLoader(test_dataset, batch_size=5000, shuffle=False, pin_memory=True, num_workers=2)
 
 
@@ -27,27 +27,27 @@ class Simple_SNN(nn.Module):
     def __init__(self):
         super(Simple_SNN, self).__init__()
         self.flatten = nn.Flatten()
-        self.linear = nn.Linear(28 * 28, 2048)
+        self.linear = nn.Linear(28 * 28, 2048)        #128 нейронов достаточно 
         self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(0.2)
+        self.dropout = nn.Dropout(0.2)    #лучше убрать 
         self.linear1 = nn.Linear(2048, 10)
 
     def forward(self, x):
         x = self.flatten(x)
         x = self.linear(x)
         x = self.relu(x)
-        x = self.dropout(x)
+        x = self.dropout(x)    #лучше убрать 
         x = self.linear1(x)
         return x
 
 
-# Инициализация модели на нужном устройстве
+# Инициализация модели на gpu
 model = Simple_SNN().to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # Цикл обучения
-num_epochs = 10  # Оптимальное количество эпох для MNIST
+num_epochs = 10  
 for epoch in range(num_epochs):
     model.train()
     total_loss = 0
@@ -62,7 +62,6 @@ for epoch in range(num_epochs):
         optimizer.step()
         total_loss += loss.item()
 
-    # === Вычисление точности на тестовой выборке после каждой эпохи ===
     model.eval()
     correct = 0
     total = 0
